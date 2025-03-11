@@ -1,17 +1,26 @@
+import mongoose from "mongoose"
 
-import mongoose from "mongoose";
-// import {DB_NAME} from "../constant.js"
-const DB_NAME = "astrochats";
+const DB_NAME = "astrochats"
+let isConnected = false // Track connection status
 
-const connectDB = async ()=>{
-    try{
-    await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);
-    console.log(`MongoDB connected successfully`);
+const connectDB = async () => {
+    if (isConnected) {
+        console.log("Using existing MongoDB connection")
+        return
     }
-    catch(error){
-        console.log("ERROR: ", error);
-        throw err
+
+    try {
+        const conn = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        })
+
+        isConnected = conn.connections[0].readyState
+        console.log("MongoDB connected successfully")
+    } catch (error) {
+        console.error("ERROR:", error)
+        throw error 
     }
 }
 
-export default connectDB;
+export default connectDB
